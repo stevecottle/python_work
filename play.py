@@ -542,15 +542,30 @@ def LongestWord(sen):
 print(LongestWord("fun&!!"))
 """
 
-# Figure out how to remove symbols from this vvv
 print(f"\nReturn longest word:")
 
 def LongestWord(sen):
+    import re
+
     split = sen.split()
 
     return max(split, key=len)
 
-print(LongestWord("fun&!! is the best banana exampleton"))
+print(LongestWord("fun&!! is the best"))
+
+
+print(f"\nReturn longest word no symbols:")
+
+def LongestWord(sen):
+    import re
+
+    alpha_only = re.sub(r'[^A-Za-z ]+', "", sen)
+    split = alpha_only.split()
+
+    return max(split, key=len)
+
+print(LongestWord("fun&!! is the best"))
+
 
 
 
