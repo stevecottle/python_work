@@ -523,26 +523,34 @@ def LongestWord(sen):
 print(LongestWord("fun&!! time"))
 """
 
+"""
+Didn't work vvv
+
 print(f"\nReturn longest word:")
 
 
 def LongestWord(sen):
     split_input = sen.split()
     alpha_only = re.sub(r'[^A-Za-z0-9 ]+', "", split_input)
-    """filtered = filter(str.isalpha,split_input)
-    final_filtered = "".join(filtered)"""
+    #filtered = filter(str.isalpha,split_input)
+    #final_filtered = "".join(filtered)
 
     return alpha_only
 
 
 
 print(LongestWord("fun&!!"))
+"""
 
+# Figure out how to remove symbols from this vvv
+print(f"\nReturn longest word:")
 
+def LongestWord(sen):
+    split = sen.split()
 
+    return max(split, key=len)
 
-
-
+print(LongestWord("fun&!! is the best banana exampleton"))
 
 
 
