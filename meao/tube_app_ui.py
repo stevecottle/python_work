@@ -190,20 +190,24 @@ def on_submit():
             user3_lon = entry_user3_lon.get()
 
             if not validate_coordinates(user1_lat, user1_lon) or \
-               not validate_coordinates(user2_lat, user2_lon) or \
-               not validate_coordinates(user3_lat, user3_lon):
+               not validate_coordinates(user2_lat, user2_lon):
                 return
 
             user1_coords = (float(user1_lat), float(user1_lon))
             user2_coords = (float(user2_lat), float(user2_lon))
-            user3_coords = (float(user3_lat), float(user3_lon))
+            user3_coords = None
+
+            if user3_lat and user3_lon:  # Optional User 3
+                if not validate_coordinates(user3_lat, user3_lon):
+                    return
+                user3_coords = (float(user3_lat), float(user3_lon))
         else:  # Dropdown mode
             user1_station = combo_user1_station.get()
             user2_station = combo_user2_station.get()
             user3_station = combo_user3_station.get()
 
-            if not user1_station or not user2_station or not user3_station:
-                messagebox.showerror("Error", "Please select stations for all users.")
+            if user1_station == "Select Station" or user2_station == "Select Station":
+                messagebox.showerror("Error", "Please select stations for User 1 and User 2.")
                 return
 
             user1_coords = (
@@ -214,12 +218,18 @@ def on_submit():
                 stations[stations['Station'] == user2_station]['Latitude'].values[0],
                 stations[stations['Station'] == user2_station]['Longitude'].values[0]
             )
-            user3_coords = (
-                stations[stations['Station'] == user3_station]['Latitude'].values[0],
-                stations[stations['Station'] == user3_station]['Longitude'].values[0]
-            )
+            user3_coords = None
 
-        users = [user1_coords, user2_coords, user3_coords]
+            if user3_station != "Select Station":  # Optional User 3
+                user3_coords = (
+                    stations[stations['Station'] == user3_station]['Latitude'].values[0],
+                    stations[stations['Station'] == user3_station]['Longitude'].values[0]
+                )
+
+        users = [user1_coords, user2_coords]
+        if user3_coords:
+            users.append(user3_coords)
+
         midpoint = calculate_midpoint(user1_coords, user2_coords)
         filtered_stations = filter_stations_within_radius(midpoint, stations, radius_km=10)
         
@@ -284,13 +294,13 @@ entry_user2_lon = tk.Entry(root)
 entry_user2_lon.grid(row=5, column=1)
 entry_user2_lon.insert(0, "Enter longitude")
 
-label_user3_lat = tk.Label(root, text="User 3 Latitude:")
+label_user3_lat = tk.Label(root, text="User 3 Latitude (optional):")
 label_user3_lat.grid(row=6, column=0, sticky="e")
 entry_user3_lat = tk.Entry(root)
 entry_user3_lat.grid(row=6, column=1)
 entry_user3_lat.insert(0, "Enter latitude")
 
-label_user3_lon = tk.Label(root, text="User 3 Longitude:")
+label_user3_lon = tk.Label(root, text="User 3 Longitude (optional):")
 label_user3_lon.grid(row=7, column=0, sticky="e")
 entry_user3_lon = tk.Entry(root)
 entry_user3_lon.grid(row=7, column=1)
@@ -299,21 +309,21 @@ entry_user3_lon.insert(0, "Enter longitude")
 # Create dropdown menus for station selection
 label_user1_station = tk.Label(root, text="User 1 Station:")
 label_user1_station.grid(row=2, column=0, sticky="e")
-combo_user1_station = ttk.Combobox(root, values=stations['Station'].tolist())
+combo_user1_station = ttk.Combobox(root, values=["Select Station"] + stations['Station'].tolist())
 combo_user1_station.grid(row=2, column=1)
-combo_user1_station.set(stations['Station'].tolist()[0])
+combo_user1_station.set("Select Station")  # No default selection
 
 label_user2_station = tk.Label(root, text="User 2 Station:")
 label_user2_station.grid(row=3, column=0, sticky="e")
-combo_user2_station = ttk.Combobox(root, values=stations['Station'].tolist())
+combo_user2_station = ttk.Combobox(root, values=["Select Station"] + stations['Station'].tolist())
 combo_user2_station.grid(row=3, column=1)
-combo_user2_station.set(stations['Station'].tolist()[0])
+combo_user2_station.set("Select Station")  # No default selection
 
-label_user3_station = tk.Label(root, text="User 3 Station:")
+label_user3_station = tk.Label(root, text="User 3 Station (optional):")
 label_user3_station.grid(row=4, column=0, sticky="e")
-combo_user3_station = ttk.Combobox(root, values=stations['Station'].tolist())
+combo_user3_station = ttk.Combobox(root, values=["Select Station"] + stations['Station'].tolist())
 combo_user3_station.grid(row=4, column=1)
-combo_user3_station.set(stations['Station'].tolist()[0])
+combo_user3_station.set("Select Station")  # No default selection
 
 # Hide dropdowns initially
 label_user1_station.grid_remove()
