@@ -545,13 +545,11 @@ print(LongestWord("fun&!!"))
 print(f"\nReturn longest word:")
 
 def LongestWord(sen):
-    import re
-
     split = sen.split()
 
     return max(split, key=len)
 
-print(LongestWord("fun&!! is the best"))
+print(LongestWord("eggs are!@#$%^&*() the bestest"))
 
 
 print(f"\nReturn longest word no symbols:")
@@ -564,7 +562,8 @@ def LongestWord(sen):
 
     return max(split, key=len)
 
-print(LongestWord("fun&!! is the best"))
+print(LongestWord("eggs are!@#$%^&*() the bestest"))
+
 
 
 
