@@ -82,46 +82,19 @@ def find_equal_time_station(users, stations, api_key):
     
     return best_station
 
-# UI Code
-def toggle_input_mode():
-    if toggle_button.cget("text") == "Use Dropdown":
-        # Show dropdowns and hide manual input fields
-        label_user1_station.grid()
-        combo_user1_station.grid()
-        label_user2_station.grid()
-        combo_user2_station.grid()
-        
-        label_user1_lat.grid_remove()
-        entry_user1_lat.grid_remove()
-        label_user1_lon.grid_remove()
-        entry_user1_lon.grid_remove()
-        label_user2_lat.grid_remove()
-        entry_user2_lat.grid_remove()
-        label_user2_lon.grid_remove()
-        entry_user2_lon.grid_remove()
-        
-        toggle_button.config(text="Use Manual Input")
-    else:
-        # Show manual input fields and hide dropdowns
-        label_user1_lat.grid()
-        entry_user1_lat.grid()
-        label_user1_lon.grid()
-        entry_user1_lon.grid()
-        label_user2_lat.grid()
-        entry_user2_lat.grid()
-        label_user2_lon.grid()
-        entry_user2_lon.grid()
-        
-        label_user1_station.grid_remove()
-        combo_user1_station.grid_remove()
-        label_user2_station.grid_remove()
-        combo_user2_station.grid_remove()
-        
-        toggle_button.config(text="Use Dropdown")
-
+# Function to handle form submission
 def on_submit():
     try:
-        if toggle_button.cget("text") == "Use Dropdown":
+        if input_mode.get() == 1:  # Latitude/Longitude mode
+            # Get coordinates from the manual input fields
+            user1_lat = float(entry_user1_lat.get())
+            user1_lon = float(entry_user1_lon.get())
+            user2_lat = float(entry_user2_lat.get())
+            user2_lon = float(entry_user2_lon.get())
+            
+            user1_coords = (user1_lat, user1_lon)
+            user2_coords = (user2_lat, user2_lon)
+        else:  # Dropdown mode
             # Get selected stations from the dropdowns
             user1_station = combo_user1_station.get()
             user2_station = combo_user2_station.get()
@@ -135,15 +108,6 @@ def on_submit():
                 stations[stations['Station'] == user2_station]['Latitude'].values[0],
                 stations[stations['Station'] == user2_station]['Longitude'].values[0]
             )
-        else:
-            # Get coordinates from the manual input fields
-            user1_lat = float(entry_user1_lat.get())
-            user1_lon = float(entry_user1_lon.get())
-            user2_lat = float(entry_user2_lat.get())
-            user2_lon = float(entry_user2_lon.get())
-            
-            user1_coords = (user1_lat, user1_lon)
-            user2_coords = (user2_lat, user2_lon)
         
         users = [user1_coords, user2_coords]
         
@@ -152,7 +116,7 @@ def on_submit():
         
         # Show the result in a message box
         if result:
-            messagebox.showinfo("Result", f"Equal-time destination: {result}")
+            messagebox.showinfo("Result", f"Equal-time destination: {result}!")
         else:
             messagebox.showinfo("Result", "Unable to find an equal-time destination.")
     except Exception as e:
@@ -166,51 +130,61 @@ root.title("Tube App")
 stations = load_stations("tube_stations.csv")
 api_key = "f234cac01ae545d2991cc51681a2f820"  # Replace with your key
 
-# Create input fields for manual coordinates
-label_user1_lat = tk.Label(root, text="User 1 Latitude:")
+# Create radio buttons for input mode selection
+input_mode = tk.IntVar(value=1)  # Default to lat/long mode
+
+# Top Section: Radio Buttons
+radio_frame = tk.Frame(root)
+radio_frame.grid(row=0, column=0, columnspan=2, pady=10)
+
+tk.Radiobutton(radio_frame, text="Use Latitude/Longitude", variable=input_mode, value=1).pack(side=tk.LEFT, padx=10)
+tk.Radiobutton(radio_frame, text="Use Dropdown", variable=input_mode, value=2).pack(side=tk.LEFT, padx=10)
+
+# Middle Section: Latitude/Longitude Inputs
+latlon_frame = tk.Frame(root)
+latlon_frame.grid(row=1, column=0, columnspan=2, pady=10)
+
+label_user1_lat = tk.Label(latlon_frame, text="User 1 Latitude:")
 label_user1_lat.grid(row=0, column=0)
-entry_user1_lat = tk.Entry(root)
+entry_user1_lat = tk.Entry(latlon_frame)
 entry_user1_lat.grid(row=0, column=1)
 
-label_user1_lon = tk.Label(root, text="User 1 Longitude:")
+label_user1_lon = tk.Label(latlon_frame, text="User 1 Longitude:")
 label_user1_lon.grid(row=1, column=0)
-entry_user1_lon = tk.Entry(root)
+entry_user1_lon = tk.Entry(latlon_frame)
 entry_user1_lon.grid(row=1, column=1)
 
-label_user2_lat = tk.Label(root, text="User 2 Latitude:")
+label_user2_lat = tk.Label(latlon_frame, text="User 2 Latitude:")
 label_user2_lat.grid(row=2, column=0)
-entry_user2_lat = tk.Entry(root)
+entry_user2_lat = tk.Entry(latlon_frame)
 entry_user2_lat.grid(row=2, column=1)
 
-label_user2_lon = tk.Label(root, text="User 2 Longitude:")
+label_user2_lon = tk.Label(latlon_frame, text="User 2 Longitude:")
 label_user2_lon.grid(row=3, column=0)
-entry_user2_lon = tk.Entry(root)
+entry_user2_lon = tk.Entry(latlon_frame)
 entry_user2_lon.grid(row=3, column=1)
 
-# Create dropdown menus for station selection
-label_user1_station = tk.Label(root, text="User 1 Station:")
+# Middle Section: Dropdown Inputs
+dropdown_frame = tk.Frame(root)
+dropdown_frame.grid(row=2, column=0, columnspan=2, pady=10)
+
+label_user1_station = tk.Label(dropdown_frame, text="User 1 Station:")
 label_user1_station.grid(row=0, column=0)
-combo_user1_station = ttk.Combobox(root, values=stations['Station'].tolist())
+combo_user1_station = ttk.Combobox(dropdown_frame, values=stations['Station'].tolist())
 combo_user1_station.grid(row=0, column=1)
 
-label_user2_station = tk.Label(root, text="User 2 Station:")
+label_user2_station = tk.Label(dropdown_frame, text="User 2 Station:")
 label_user2_station.grid(row=1, column=0)
-combo_user2_station = ttk.Combobox(root, values=stations['Station'].tolist())
+combo_user2_station = ttk.Combobox(dropdown_frame, values=stations['Station'].tolist())
 combo_user2_station.grid(row=1, column=1)
 
-# Hide dropdowns initially
-label_user1_station.grid_remove()
-combo_user1_station.grid_remove()
-label_user2_station.grid_remove()
-combo_user2_station.grid_remove()
+# Set default values for dropdowns
+combo_user1_station.set(stations['Station'].tolist()[0])
+combo_user2_station.set(stations['Station'].tolist()[0])
 
-# Create a toggle button to switch between input modes
-toggle_button = tk.Button(root, text="Use Dropdown", command=toggle_input_mode)
-toggle_button.grid(row=4, column=0, columnspan=2)
-
-# Create a submit button
+# Bottom Section: Submit Button
 submit_button = tk.Button(root, text="Find Equal-Time Destination", command=on_submit)
-submit_button.grid(row=5, column=0, columnspan=2)
+submit_button.grid(row=3, column=0, columnspan=2, pady=20)
 
 # Run the main loop
 root.mainloop()
