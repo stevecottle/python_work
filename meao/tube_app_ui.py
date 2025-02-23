@@ -41,13 +41,13 @@ def filter_stations_within_radius(midpoint, stations, radius_km=10):
             filtered_stations.append(station)
     return pd.DataFrame(filtered_stations)
 
-# Get travel time and route details between stations
+# Get travel time and route details between stations (with max 1 change)
 def get_travel_time_with_routes(start_station_id, end_station_id, api_key, retries=3):
     if start_station_id == end_station_id:
         return None, []
     
     url = f"https://api.tfl.gov.uk/Journey/JourneyResults/{start_station_id}/to/{end_station_id}"
-    params = {"app_key": api_key, "mode": "tube"}
+    params = {"app_key": api_key, "mode": "tube", "maxChange": 1}  # Limit to 1 change
     
     try:
         response = requests.get(url, params=params)
@@ -57,9 +57,21 @@ def get_travel_time_with_routes(start_station_id, end_station_id, api_key, retri
         if 'journeys' not in data or not data['journeys']:
             return None, []
             
-        journey = data['journeys'][0]
-        duration = journey['duration']
-        legs = journey['legs']
+        # Find the journey with the fewest changes
+        best_journey = None
+        min_changes = float('inf')
+        
+        for journey in data['journeys']:
+            num_changes = len(journey['legs']) - 1
+            if num_changes < min_changes:
+                min_changes = num_changes
+                best_journey = journey
+        
+        if not best_journey:
+            return None, []
+        
+        duration = best_journey['duration']
+        legs = best_journey['legs']
         route_details = []
         
         for leg in legs:
