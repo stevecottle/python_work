@@ -11,15 +11,19 @@ class RotationApp:
         ttk.Label(root, text="Game Structure:").grid(row=0, column=0, padx=10, pady=5)
         self.segment_var = ttk.Combobox(root, values=["Quarters (4)", "Halves (2)"])
         self.segment_var.grid(row=0, column=1, padx=10, pady=5)
+        self.segment_var.set("Quarters (4)")  # Default value
         self.segment_var.bind("<<ComboboxSelected>>", self.update_gk_options)
         
         ttk.Label(root, text="Players Per Side:").grid(row=1, column=0, padx=10, pady=5)
         self.players_side_var = ttk.Combobox(root, values=["5-a-side", "6-a-side", "7-a-side"])
         self.players_side_var.grid(row=1, column=1, padx=10, pady=5)
+        self.players_side_var.set("5-a-side")  # Default value
         
         ttk.Label(root, text="Number of Goalkeepers:").grid(row=2, column=0, padx=10, pady=5)
         self.gk_count_var = ttk.Combobox(root, values=[])
         self.gk_count_var.grid(row=2, column=1, padx=10, pady=5)
+        self.update_gk_options()  # Initialize goalkeeper options
+        self.gk_count_var.set("4")  # Default value
         
         ttk.Label(root, text="Player Names (comma-separated):").grid(row=3, column=0, padx=10, pady=5)
         self.players_entry = ttk.Entry(root, width=40)
